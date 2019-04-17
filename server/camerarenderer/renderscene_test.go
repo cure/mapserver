@@ -41,5 +41,6 @@ func TestRenderScene(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	NewRenderer(cache, m)
+	r := NewRenderer(cache, m)
+	r.RenderScene()
 }
