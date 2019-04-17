@@ -1,6 +1,7 @@
 package app
 
 import (
+	"mapserver/camerarenderer"
 	"mapserver/colormapping"
 	"mapserver/db"
 	"mapserver/eventbus"
@@ -27,6 +28,7 @@ type App struct {
 	Colormapping     *colormapping.ColorMapping
 	Mapblockrenderer *mapblockrenderer.MapBlockRenderer
 	Tilerenderer     *tilerenderer.TileRenderer
+	CameraRenderer   *camerarenderer.Renderer
 
 	WebEventbus *eventbus.Eventbus
 }

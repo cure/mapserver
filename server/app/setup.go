@@ -1,6 +1,7 @@
 package app
 
 import (
+	"mapserver/camerarenderer"
 	"mapserver/colormapping"
 	"mapserver/db/postgres"
 	"mapserver/db/sqlite"
@@ -142,6 +143,9 @@ func Setup(p params.ParamsType, cfg *Config) *App {
 		a.Blockdb,
 		a.Config.Layers,
 	)
+
+	//camera renderer
+	a.CameraRenderer = camerarenderer.NewRenderer(a.BlockAccessor, a.Colormapping)
 
 	return &a
 }
