@@ -30,3 +30,15 @@ create table if not exists settings(
 	key varchar primary key not null,
 	value varchar not null
 );
+
+create table if not exists subscriptions(
+	id integer primary key autoincrement,
+	endpoint varchar not null,
+	auth varchar not null,
+	p256dh varchar not null,
+	x int,
+	y int,
+	z int
+);
+
+create index if not exists subscriptions_pos on objects(x,y,z);

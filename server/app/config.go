@@ -7,6 +7,8 @@ import (
 	"os"
 	"runtime"
 	"sync"
+
+	webpush "github.com/SherClockHolmes/webpush-go"
 )
 
 type Config struct {
@@ -26,6 +28,13 @@ type Config struct {
 	MapObjects             *MapObjectConfig        `json:"mapobjects"`
 	MapBlockAccessorCfg    *MapBlockAccessorConfig `json:"mapblockaccessor"`
 	DefaultOverlays        []string                `json:"defaultoverlays"`
+	WebPush                *WebpushConfig          `json:"webpush"`
+}
+
+type WebpushConfig struct {
+	PublicKey  string `json:"publickey"`
+	PrivateKey string `json:"privatekey"`
+	Subscriber string `json:"subscriber"`
 }
 
 type MapBlockAccessorConfig struct {
@@ -162,6 +171,8 @@ func ParseConfig(filename string) (*Config, error) {
 		"mapserver_player",
 	}
 
+	webpushcfg := WebpushConfig{}
+
 	cfg := Config{
 		ConfigVersion:          1,
 		Port:                   8080,
@@ -179,6 +190,7 @@ func ParseConfig(filename string) (*Config, error) {
 		MapObjects:             &mapobjs,
 		MapBlockAccessorCfg:    &mapblockaccessor,
 		DefaultOverlays:        defaultoverlays,
+		WebPush:                &webpushcfg,
 	}
 
 	info, err := os.Stat(filename)
@@ -192,6 +204,16 @@ func ParseConfig(filename string) (*Config, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if webpushcfg.PrivateKey == "" {
+		privateKey, publicKey, err := webpush.GenerateVAPIDKeys()
+		if err != nil {
+			return nil, err
+		}
+
+		webpushcfg.PrivateKey = privateKey
+		webpushcfg.PublicKey = publicKey
 	}
 
 	return &cfg, nil
