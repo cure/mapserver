@@ -42,5 +42,5 @@ func TestRenderScene(t *testing.T) {
 	}
 
 	r := NewRenderer(cache, m)
-	r.RenderScene(0, 50, 0, SOUTH_EAST, DOWN)
+	r.RenderScene(0, 100, 0, SOUTH_EAST, DOWN)
 }
