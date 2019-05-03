@@ -1,6 +1,7 @@
 {
   "scripts": [
     "/js/lib/leaflet.js",
+    "/js/lib/leaflet.awesome-markers.js",
     "/js/lib/mithril.min.js",
     "/js/lib/color-hash.js",
     "/js/util/debounce.js",
@@ -25,6 +26,7 @@
     "/js/overlays/LabelOverlay.js",
     "/js/overlays/PlayerOverlay.js",
     "/js/overlays/TrainOverlay.js",
+    "/js/overlays/MinecartOverlay.js",
     "/js/overlays/TrainlineOverlay.js",
     "/js/overlays/BorderOverlay.js",
     "/js/overlays/ProtectorOverlay.js",
@@ -46,6 +48,7 @@
     "/css/fontawesome.min.css",
     "/css/bootstrap.min.css",
     "/css/leaflet.css",
+    "/css/leaflet.awesome-markers.css",
     "/css/custom.css"
   ]
 }

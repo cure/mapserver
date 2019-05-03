@@ -50,3 +50,11 @@
 * advtrains_wagon_wood_inv.png
 ** License: CC BY-SA 3.0
 ** Source [advtrains](http://advtrains.bleipb.de/)
+
+* minecart_logo.png
+** License: CC0
+** Source [minecart](https://github.com/joe7575/minecart)
+
+* mapserver_gold_block.png
+** License: CC BY-SA 3.0
+** Source [minetest_game](https://github.com/minetest/minetest_game)
