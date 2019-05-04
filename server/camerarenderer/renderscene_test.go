@@ -7,6 +7,8 @@ import (
 	"mapserver/mapblockaccessor"
 	"mapserver/testutils"
 	"os"
+	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
@@ -42,5 +44,19 @@ func TestRenderScene(t *testing.T) {
 	}
 
 	r := NewRenderer(cache, m)
-	r.RenderScene(0, 100, 0, SOUTH_EAST, DOWN)
+	data, err := r.RenderScene(0, 100, 0, SOUTH_EAST, DOWN)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, currentfilename, _, _ := runtime.Caller(0)
+	path := filepath.Dir(currentfilename) + "/../output"
+	os.MkdirAll(path, 0700)
+
+	err = ioutil.WriteFile(path+"/img.png", data, 0644)
+
+	if err != nil {
+		t.Fatal(err)
+	}
 }
