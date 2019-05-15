@@ -23,12 +23,29 @@ const (
 )
 
 const (
-	IMG_HEIGHT = 640
-	IMG_WIDTH  = 800
+	IMG_HEIGHT   = 640
+	IMG_WIDTH    = 800
+	BLOCK_HEIGHT = 16
+	BLOCK_WIDTH  = 20
 )
 
 func (r *Renderer) GetNodeName(x, y, z int) string {
-	return "" //TODO
+	coord := coords.GetMapBlockCoordsFromPlain(x, y, z)
+	mb, err := r.BlockAccessor.GetMapBlock(coord)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if mb == nil || mb.IsEmpty() {
+		return ""
+	}
+
+	innerX := x % 16
+	innerY := y % 16
+	innerZ := z % 16
+
+	return mb.GetNodeName(innerX, innerY, innerZ)
 }
 
 func (r *Renderer) IsOccupied(x, y, z int) bool {
@@ -60,6 +77,12 @@ func (r *Renderer) RenderScene(x, y, z int, direction, zdirection int) ([]byte, 
 		0, 0,
 		IMG_WIDTH, IMG_HEIGHT,
 	)
+
+	for ix := 0; ix < int(IMG_WIDTH/BLOCK_WIDTH); ix++ {
+		for iy := 0; iy < int(IMG_WIDTH/BLOCK_WIDTH); iy++ {
+			//TODO
+		}
+	}
 
 	draw.Draw(img, rect, &image.Uniform{c}, image.ZP, draw.Src)
 
