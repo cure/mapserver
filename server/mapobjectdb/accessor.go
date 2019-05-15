@@ -70,6 +70,14 @@ type SearchQuery struct {
 	AttributeLike *SearchAttributeLike   `json:"attributelike"`
 }
 
+type Subscription struct {
+	Id       *int64
+	Endpoint string
+	Auth     string
+	P256DH   string
+	X, Y, Z  int
+}
+
 type DBAccessor interface {
 	//migrates the database
 	Migrate() error
@@ -82,4 +90,10 @@ type DBAccessor interface {
 	//Settings
 	GetSetting(key string, defaultvalue string) (string, error)
 	SetSetting(key string, value string) error
+
+	//subscriptions
+	GetSubscriptionsByMapblockPos(*coords.MapBlockCoords) ([]Subscription, error)
+	GetSubscriptionsByEndpoint(endpoint string) ([]Subscription, error)
+	AddSubscription(sub *Subscription) error
+	RemoveSubscription(sub *Subscription) error
 }
