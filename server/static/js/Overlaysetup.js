@@ -142,4 +142,19 @@ function Overlaysetup(cfg, map, overlays, wsChannel, layerMgr){
         map.addLayer(overlays.Minecart);
       }
     }
+
+    if (cfg.mapobjects.atm) {
+      overlays.ATM = new ATMOverlay(wsChannel, layerMgr);
+      if (cfg.defaultoverlays.indexOf("atm") >= 0) {
+        map.addLayer(overlays.ATM);
+      }
+    }
+
+    if (cfg.mapobjects.locator) {
+      overlays.Locator = new LocatorOverlay(wsChannel, layerMgr);
+      if (cfg.defaultoverlays.indexOf("locator") >= 0) {
+        map.addLayer(overlays.Locator);
+      }
+    }
+
 }

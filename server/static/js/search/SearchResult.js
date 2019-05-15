@@ -23,6 +23,7 @@ var SearchResult = {
       var description = obj.type;
       var type = obj.type;
 
+      // train-line result
       if (obj.type == "train"){
         description = [
           m("span", obj.attributes.station),
@@ -33,22 +34,45 @@ var SearchResult = {
         type = m("i", { class: "fa fa-subway" });
       }
 
+      // travelnet
       if (obj.type == "travelnet"){
         description = m("span", obj.attributes.station_name);
         type = m("img", { src: "pics/travelnet_inv.png" });
       }
 
+      // bones
+      if (obj.type == "bones"){
+        description = m("span", obj.attributes.owner);
+        type = m("img", { src: "pics/bones_top.png" });
+      }
+
+      // locator
+      if (obj.type == "locator"){
+        description = m("span", obj.attributes.name);
+
+        var img = "pics/locator_beacon_level1.png";
+
+        if (obj.attributes.level == "2")
+          img = "pics/locator_beacon_level2.png";
+        else if (obj.attributes.level == "3")
+          img = "pics/locator_beacon_level3.png";
+
+        type = m("img", { src: img });
+      }
+
+      // poi marker
       if (obj.type == "poi"){
         description = m("span", obj.attributes.name);
 
         var color = obj.attributes.color || "blue";
         var icon = obj.attributes.icon || "home";
 
-        type = m("div", { class: "awesome-marker awesome-marker-icon-" + color }, [
+        type = m("div", { style: "position: relative", class: "awesome-marker awesome-marker-icon-" + color }, [
           m("i", { class: "fa fa-" + icon })
         ]);
       }
 
+      //shop
       if (obj.type == "shop") {
         if (obj.attributes.stock == 0){
           row_classes += "table-warning";

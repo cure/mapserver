@@ -1,6 +1,25 @@
 
 # Changelog
 
+## 2.2.0
+
+* Added ATM overlay
+* Added locator overlay
+* Add ability for bone-owner search
+* Separate mapserver_mod into own repository
+
+## 2.1.1
+
+* force tcp v4 for listener
+
+## 2.1.0
+
+* Added search bar
+* Shop info with stock
+* Colored POI's
+* Icons for POI's
+* Exported mapserver mod to own repository: https://github.com/thomasrudin/mapserver_mod
+
 ## 2.0.1
 * Added *configversion* to `mapserver.json`
 * Added *defaultoverlays* to `mapserver.json`
