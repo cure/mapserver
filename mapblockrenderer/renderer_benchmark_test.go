@@ -6,6 +6,7 @@ import (
 	"mapserver/coords"
 	"mapserver/db/sqlite"
 	"mapserver/mapblockaccessor"
+	"mapserver/blockaccessor"
 	"mapserver/testutils"
 	"os"
 	"testing"
@@ -46,7 +47,9 @@ func createRenderer(b *testing.B) (*MapBlockRenderer, callback) {
 		b.Fatal(err)
 	}
 
-	r := NewMapBlockRenderer(cache, c)
+	ba := blockaccessor.New(cache)
+	r := NewMapBlockRenderer(ba, c)
+
 	b.ResetTimer()
 
 	return r, cleanup

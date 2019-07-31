@@ -119,7 +119,7 @@ func Setup(p params.ParamsType, cfg *Config) *App {
 	}
 
 	//mapblock renderer
-	a.Mapblockrenderer = mapblockrenderer.NewMapBlockRenderer(a.MapBlockAccessor, a.Colormapping)
+	a.Mapblockrenderer = mapblockrenderer.NewMapBlockRenderer(a.BlockAccessor, a.Colormapping)
 
 	//mapserver database
 	if a.Worldconfig[worldconfig.CONFIG_PSQL_MAPSERVER] != "" {

@@ -8,6 +8,7 @@ import (
 	"mapserver/db/sqlite"
 	"mapserver/layer"
 	"mapserver/mapblockaccessor"
+	"mapserver/blockaccessor"
 	"mapserver/testutils"
 	"os"
 	"testing"
@@ -52,7 +53,9 @@ func TestSimpleRender(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	r := NewMapBlockRenderer(cache, c)
+	ba := blockaccessor.New(cache)
+
+	r := NewMapBlockRenderer(ba, c)
 	os.Mkdir("../test-output", 0755)
 
 	results := make(chan JobResult, 100)

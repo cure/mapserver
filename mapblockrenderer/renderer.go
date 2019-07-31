@@ -7,21 +7,22 @@ import (
 	"image/draw"
 	"mapserver/colormapping"
 	"mapserver/coords"
-	"mapserver/mapblockaccessor"
+	"mapserver/blockaccessor"
 	"time"
+	"math"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
 
 type MapBlockRenderer struct {
-	accessor           *mapblockaccessor.MapBlockAccessor
+	accessor           *blockaccessor.BlockAccessor
 	colors             *colormapping.ColorMapping
 	enableShadow       bool
 	enableTransparency bool
 }
 
-func NewMapBlockRenderer(accessor *mapblockaccessor.MapBlockAccessor, colors *colormapping.ColorMapping) *MapBlockRenderer {
+func NewMapBlockRenderer(accessor *blockaccessor.BlockAccessor, colors *colormapping.ColorMapping) *MapBlockRenderer {
 	return &MapBlockRenderer{
 		accessor:           accessor,
 		colors:             colors,
@@ -110,121 +111,100 @@ func (r *MapBlockRenderer) Render(pos1, pos2 *coords.MapBlockCoords) (*image.NRG
 		xzOccupationMap[x] = make([]bool, 16)
 	}
 
-	for mapBlockY := maxY; mapBlockY >= minY; mapBlockY-- {
-		currentPos := coords.NewMapBlockCoords(pos1.X, mapBlockY, pos1.Z)
-		mb, err := r.accessor.GetMapBlock(currentPos)
+	fromX := pos1.X * 16
+	toX := fromX + 16
 
-		if err != nil {
-			return nil, err
-		}
+	fromZ := pos1.Z * 16
+	toZ := fromZ + 16
 
-		if mb == nil || mb.IsEmpty() {
-			continue
-		}
+	toY := minY*16
+	fromY := (maxY*16) + 16
 
-		for x := 0; x < 16; x++ {
-			for z := 0; z < 16; z++ {
-				for y := 15; y >= 0; y-- {
-					if xzOccupationMap[x][z] {
-						continue
+	for x := fromX; x < toX; x++ {
+		for z := fromZ; z < toZ; z++ {
+			for y := fromY; y >= toY; y-- {
+				x_mod := int(math.Abs(float64(x%16)))
+				z_mod := int(math.Abs(float64(z%16)))
+
+				if xzOccupationMap[x_mod][z_mod] {
+					break
+				}
+
+				block, err := r.accessor.GetBlock(x,y,z)
+				if err != nil {
+					return nil, err
+				}
+
+				if block == nil || block.Name == "" {
+					continue
+				}
+
+				c := r.colors.GetColor(block.Name, block.Param2)
+
+				if c == nil {
+					continue
+				}
+
+				if r.enableShadow {
+					left, err := r.accessor.GetBlock(x-1,y,z)
+					if err != nil {
+						return nil, err
 					}
 
-					nodeName := mb.GetNodeName(x, y, z)
-					param2 := mb.GetParam2(x, y, z)
-
-					if nodeName == "" {
-						continue
+					leftAbove, err := r.accessor.GetBlock(x-1,y+1,z)
+					if err != nil {
+						return nil, err
 					}
 
-					c := r.colors.GetColor(nodeName, param2)
-
-					if c == nil {
-						continue
+					top, err := r.accessor.GetBlock(x,y,z-1)
+					if err != nil {
+						return nil, err
 					}
 
-					if r.enableShadow {
-						var left, leftAbove, top, topAbove string
-
-						if x > 0 {
-							//same mapblock
-							left = mb.GetNodeName(x-1, y, z)
-							if y < 15 {
-								leftAbove = mb.GetNodeName(x-1, y+1, z)
-							}
-
-						} else {
-							//neighbouring mapblock
-							neighbourPos := coords.NewMapBlockCoords(currentPos.X-1, currentPos.Y, currentPos.Z)
-							neighbourMapblock, err := r.accessor.GetMapBlock(neighbourPos)
-
-							if neighbourMapblock != nil && err == nil {
-								left = neighbourMapblock.GetNodeName(15, y, z)
-								if y < 15 {
-									leftAbove = neighbourMapblock.GetNodeName(15, y+1, z)
-								}
-							}
-						}
-
-						if z < 14 {
-							//same mapblock
-							top = mb.GetNodeName(x, y, z+1)
-							if y < 15 {
-								topAbove = mb.GetNodeName(x, y+1, z+1)
-							}
-
-						} else {
-							//neighbouring mapblock
-							neighbourPos := coords.NewMapBlockCoords(currentPos.X, currentPos.Y, currentPos.Z+1)
-							neighbourMapblock, err := r.accessor.GetMapBlock(neighbourPos)
-
-							if neighbourMapblock != nil && err == nil {
-								top = neighbourMapblock.GetNodeName(x, y, 0)
-								if y < 15 {
-									topAbove = neighbourMapblock.GetNodeName(x, y+1, z+0)
-								}
-							}
-						}
-
-						if IsViewBlocking(leftAbove) {
-							//add shadow
-							c = addColorComponent(c, -10)
-						}
-
-						if IsViewBlocking(topAbove) {
-							//add shadow
-							c = addColorComponent(c, -10)
-						}
-
-						if !IsViewBlocking(left) {
-							//add light
-							c = addColorComponent(c, 10)
-						}
-
-						if !IsViewBlocking(top) {
-							//add light
-							c = addColorComponent(c, 10)
-						}
+					topAbove, err := r.accessor.GetBlock(x,y+1,z-1)
+					if err != nil {
+						return nil, err
 					}
 
-					imgX := x * IMG_SCALE
-					imgY := (15 - z) * IMG_SCALE
-
-					rect := image.Rect(
-						imgX, imgY,
-						imgX+IMG_SCALE, imgY+IMG_SCALE,
-					)
-
-					if c.A != 0xFF || !r.enableTransparency {
-						//not transparent, mark as rendered
-						foundBlocks++
-						xzOccupationMap[x][z] = true
+					if leftAbove != nil && IsViewBlocking(leftAbove.Name) {
+						//add shadow
+						c = addColorComponent(c, -10)
 					}
 
-					draw.Draw(img, rect, &image.Uniform{c}, image.ZP, draw.Src)
-
-					if foundBlocks == EXPECTED_BLOCKS_PER_FLAT_MAPBLOCK {
-						return img, nil
+					if topAbove != nil && IsViewBlocking(topAbove.Name) {
+						//add shadow
+						c = addColorComponent(c, -10)
 					}
+
+					if left != nil && !IsViewBlocking(left.Name) {
+						//add light
+						c = addColorComponent(c, 10)
+					}
+
+					if top != nil && !IsViewBlocking(top.Name) {
+						//add light
+						c = addColorComponent(c, 10)
+					}
+				}
+
+				imgX := x * IMG_SCALE
+				imgY := (15 - z) * IMG_SCALE
+
+				rect := image.Rect(
+					imgX, imgY,
+					imgX+IMG_SCALE, imgY+IMG_SCALE,
+				)
+
+				if c.A != 0xFF || !r.enableTransparency {
+					//not transparent, mark as rendered
+					foundBlocks++
+					xzOccupationMap[x_mod][z_mod] = true
+				}
+
+				draw.Draw(img, rect, &image.Uniform{c}, image.ZP, draw.Src)
+
+				if foundBlocks == EXPECTED_BLOCKS_PER_FLAT_MAPBLOCK {
+					return img, nil
 				}
 			}
 		}

@@ -3,6 +3,7 @@ package blockaccessor
 import (
 	"mapserver/coords"
 	"mapserver/mapblockaccessor"
+	"math"
 )
 
 func New(mba *mapblockaccessor.MapBlockAccessor) *BlockAccessor {
@@ -15,7 +16,7 @@ type BlockAccessor struct {
 
 type Block struct {
 	Name string
-	//TODO: param1, param2
+	Param2 int
 }
 
 func (this *BlockAccessor) GetBlock(x, y, z int) (*Block, error) {
@@ -31,13 +32,16 @@ func (this *BlockAccessor) GetBlock(x, y, z int) (*Block, error) {
 		return nil, nil
 	}
 
-	relx := x % 16
-	rely := y % 16
-	relz := z % 16
+	relx := int(math.Abs(float64(x % 16)))
+	rely := int(math.Abs(float64(y % 16)))
+	relz := int(math.Abs(float64(z % 16)))
 
 	block := Block{
 		Name: mapblock.GetNodeName(relx, rely, relz),
+		Param2: mapblock.GetParam2(relx, rely, relz),
 	}
 
 	return &block, nil
 }
+
+// TODO: GetMeta()

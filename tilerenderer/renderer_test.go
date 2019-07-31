@@ -8,6 +8,7 @@ import (
 	"mapserver/db/sqlite"
 	"mapserver/layer"
 	"mapserver/mapblockaccessor"
+	"mapserver/blockaccessor"
 	"mapserver/mapblockrenderer"
 	"mapserver/testutils"
 	"mapserver/tiledb"
@@ -46,7 +47,8 @@ func TestTileRender(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	r := mapblockrenderer.NewMapBlockRenderer(cache, c)
+	ba := blockaccessor.New(cache)
+	r := mapblockrenderer.NewMapBlockRenderer(ba, c)
 
 	tiletmpdir, err := ioutil.TempDir("", "TestTileRenderTiles.*.sqlite")
 	defer os.RemoveAll(tiletmpdir)
