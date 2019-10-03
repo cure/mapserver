@@ -76,7 +76,7 @@ type WebApiConfig struct {
 
 var lock sync.Mutex
 
-const ConfigFile = "mapserver.json"
+var ConfigFile string = "mapserver.json"
 
 func (cfg *Config) Save() error {
 	return WriteConfig(ConfigFile, cfg)

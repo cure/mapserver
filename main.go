@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"fmt"
 	"mapserver/app"
 	"mapserver/mapobject"
@@ -38,6 +39,18 @@ func main() {
 		fmt.Print("Architecture: ")
 		fmt.Println(runtime.GOARCH)
 		return
+	}
+
+	if p.Config != "" {
+		app.ConfigFile = p.Config
+	}
+
+	if p.World != "" {
+		// TODO: Would it be better to use this path for all file opening ?
+		err := os.Chdir(p.World)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	//parse Config
